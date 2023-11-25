@@ -14,6 +14,16 @@ namespace WaldeningApi.Models
 
       builder.Entity<Park>(entity =>
       {
+        /**********************|********************
+        # .HasConversion
+        # stores the Activities array in the database as
+        # a comma separated string, this is necessary because EFC expects Collection elements
+        # to have primary keys, which is irrelevant in the context of an array of primitives.
+        # In the API call, the second arrow function is called, splitting the Comma-separated 
+        # string into a list.
+        # see 
+        ***********************|*******************/
+
         entity.Property(e => e.Activities)
             .HasConversion(
                 v => string.Join(",", v),
