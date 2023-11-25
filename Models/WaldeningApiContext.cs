@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 
 namespace WaldeningApi.Models
 {
@@ -6,6 +5,7 @@ namespace WaldeningApi.Models
   using System;
   using System.Collections.Generic;
   using System.Linq;
+
 
   public class WaldeningApiContext : DbContext
   {
@@ -34,7 +34,7 @@ namespace WaldeningApi.Models
       private static void SeedData(ModelBuilder modelBuilder)
       {
           // EFC matches schema of Park objects, type casts anonymous objects into instances of
-          // Park class
+          // Park
           var parks = new List<Park>
           {
               new() {
