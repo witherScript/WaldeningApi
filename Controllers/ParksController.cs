@@ -1,19 +1,16 @@
-using System;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using WaldeningApi.Models;
+using AutoMapper.QueryableExtensions;
+
 
 namespace WaldeningApi.Controllers
 {
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
+
 
     namespace YourNamespace
     {
@@ -33,9 +30,49 @@ namespace WaldeningApi.Controllers
             /// </summary>
             /// <returns>A list of parks</returns>
             [HttpGet]
-            public async Task<ActionResult<IEnumerable<Park>>> GetParks()
+            public async Task<ActionResult<IEnumerable<Park>>> Get([FromQuery] int? page = null, int pageSize = 10, string name = null, string state = null)
             {
-                return await _context.Parks.ToListAsync();
+                IQueryable<Park> query = _context.Parks.AsQueryable();
+                if(name!=null)
+                {
+                    query = query.Where(entry => entry.Name == name);
+                }
+                if(state!=null)
+                {
+                    query = query.Where(entry => entry.State == state);
+                }
+                if (page == null)
+                {
+                    return Ok(await CreatePagedResults(query, page.Value, pageSize));
+                }
+                var toReturn = await CreatePagedResults(query, page.Value, pageSize);
+                return Ok(toReturn);
+            }
+
+            protected async Task<PagedResults<Park>> CreatePagedResults(
+                IQueryable<Park> queryable,
+                int page,
+                int pageSize)
+            {
+
+                var skipAmount = pageSize * (page - 1);
+                var projection = queryable.Skip(skipAmount).Take(pageSize);
+
+                var totalResults = await queryable.CountAsync();
+                var results = await projection.ToListAsync();
+                var mod = totalResults % pageSize;
+                var totalPages = (totalResults / pageSize) + (mod == 0 ? 0 : 1);
+
+                var nextUrl = page >= totalPages ? null : Url?.Link("Parks", new { page = page + 1, pageSize });
+                return new PagedResults<Park>
+                {
+                    Results = results,
+                    PageNumber = page,
+                    PageSize = results.Count,
+                    NumberOfPages = totalPages,
+                    NumberOfResults = totalResults,
+                    NextPageUrl = nextUrl
+                };
             }
 
             /// <summary>
