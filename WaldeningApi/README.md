@@ -76,7 +76,9 @@ In this app there's one model (`Park`) and 5 endpoints related to that model.
       <tr>
         <td>GET</td>
         <td>/api/Parks?page=1&pageSize=10</td>
-        <td>Returns an collection of Park objects mapped to the page size, number, and optional name and state query parameters. NOTE: name and state are nullable but page size and number are not</td>
+        <td>Returns an collection of Park objects mapped to the page size, number, and optional name and state query parameters. 
+        
+        NOTE: <strong>Page and pageSize are REQUIRED</strong> </td>
         <td>200: Ok</td>
       </tr>
 </table>
